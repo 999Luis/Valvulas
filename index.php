@@ -38,7 +38,7 @@
                 <article class="card" id="bomba">
                     <span class="calle">Bomba principal</span>
                     <span class="textInf" id="flujo1"> Flujo: 0.0 L/min</span>
-                    <span class="textInf info-adicional" id="ultimoConsumo1">Último consumo: 0 L</span>
+                    <span class="textInf info-adicional" id="ultimoConsumo1" style="color:#00d4ff">Último consumo: 0 L</span>
                     <button class="btn" onclick="abrirValvula(1)" id="btnBomba">Abrir Bomba</button>
                 </article>
             </section>
@@ -46,13 +46,13 @@
                 <article class="card">
                     <span class="calle">Calle 1</span>
                     <span class="textInf" id="flujo2"> Flujo: 0.0 L/min</span>
-                    <span class="textInf info-adicional" id="ultimoConsumo2">Último consumo: 0 L</span>
+                    <span class="textInf info-adicional" id="ultimoConsumo2" style="color:#00d4ff">Último consumo: 0 L</span>
                     <button class="btn" onclick="abrirValvula(2)" id="btnV1">Abrir Válvula</button>
                 </article>
                 <article class="card">
                     <span class="calle">Calle 2</span>
                     <span class="textInf" id="flujo3"> Flujo: 0.0 L/min</span>
-                    <span class="textInf info-adicional" id="ultimoConsumo3">Último consumo: 0 L</span>
+                    <span class="textInf info-adicional" id="ultimoConsumo3" style="color:#00d4ff">Último consumo: 0 L</span>
                     <button class="btn" onclick="abrirValvula(3)" id="btnV2">Abrir Válvula</button>
                 </article>
             </section>

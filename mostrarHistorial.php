@@ -7,7 +7,7 @@ $stmt = $conexion->prepare(
     "SELECT S.nombre_dispositivo, E.accion, E.caudal_momento, E.fecha_hora
      FROM log_eventos E
      JOIN estado_sistema S ON E.dispositivo_id = S.id
-     ORDER BY E.fecha_hora DESC LIMIT 50"
+     ORDER BY E.fecha_hora DESC LIMIT 10"
 );
 
 $stmt->execute();

@@ -13,6 +13,7 @@
     <nav class="nav-links">
         <a href="index.php">Inicio</a>
         <a href="historial.php">Historial</a>
+        <a href="reportes.php">Reportes</a>
     </nav>
 </div>
 
@@ -22,7 +23,7 @@
             <thead>
                 <th>Válvula</th>
                 <th>Acción</th>
-                <th>Caudal</th>
+                <th>Flujo</th>
                 <th>Fecha</th>
             </thead>
             <tbody id="contenedor">
@@ -41,9 +42,9 @@
                     eventos.forEach(evento => {
                         let fila = `
                                 <tr>
-                                    <td>${evento.nombre_dispositivo}</td>
+                                    <td>${evento.dispositivo}</td>
                                     <td>${evento.accion}</td>
-                                    <td>${evento.caudal_momento}</td>
+                                    <td>${evento.caudal}</td>
                                     <td>${evento.fecha_hora}</td>
                                 </tr>
                             `;

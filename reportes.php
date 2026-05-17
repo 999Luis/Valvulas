@@ -1,15 +1,9 @@
 <?php
 include 'conexion.php';
 
-// Obtener dispositivos
-$stmt = $conexion->prepare("SELECT id, nombre_dispositivo FROM estado_sistema ORDER BY id");
-$stmt->execute();
-$dispositivos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Parámetros por defecto
-$fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-01');
-$fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : date('Y-m-d');
-$dispositivo_id = isset($_GET['dispositivo']) ? intval($_GET['dispositivo']) : 0;
+// Parámetros por defecto: solo fecha actual
+$fecha_inicio = date('Y-m-d');
+$fecha_fin = date('Y-m-d');
 
 // Consultar consumos
 $query = "SELECT c.id_consumo, s.nombre_dispositivo, s.id as dispositivo_id, c.litros_totales, 
@@ -20,12 +14,6 @@ $query = "SELECT c.id_consumo, s.nombre_dispositivo, s.id as dispositivo_id, c.l
 
 $params = [$fecha_inicio . ' 00:00:00', $fecha_fin . ' 23:59:59'];
 $types = 'ss';
-
-if ($dispositivo_id > 0) {
-    $query .= " AND c.calle_id = ?";
-    $params[] = $dispositivo_id;
-    $types .= 'i';
-}
 
 $query .= " ORDER BY c.fecha_registro DESC";
 
@@ -45,24 +33,7 @@ $historial_fechas = [];
 foreach ($consumos as $registro) {
     $total_litros += $registro['litros_totales'];
     $total_tiempo += $registro['tiempo_segundos'];
-    
-    $dispositivo = $registro['nombre_dispositivo'];
-    if (!isset($consumo_por_dispositivo[$dispositivo])) {
-        $consumo_por_dispositivo[$dispositivo] = 0;
-    }
-    $consumo_por_dispositivo[$dispositivo] += $registro['litros_totales'];
-    
-    $fecha = date('Y-m-d', strtotime($registro['fecha_registro']));
-    if (!isset($consumo_por_dia[$fecha])) {
-        $consumo_por_dia[$fecha] = 0;
-    }
-    $consumo_por_dia[$fecha] += $registro['litros_totales'];
-    
-    $historial_litros[] = round($registro['litros_totales'], 2);
-    $historial_fechas[] = date('d/m H:i', strtotime($registro['fecha_registro']));
 }
-
-ksort($consumo_por_dia);
 
 $promedio_litros = count($consumos) > 0 ? round($total_litros / count($consumos), 2) : 0;
 $promedio_tiempo = count($consumos) > 0 ? round($total_tiempo / count($consumos), 2) : 0;
@@ -96,28 +67,6 @@ $promedio_tiempo = count($consumos) > 0 ? round($total_tiempo / count($consumos)
         .filtro-grupo label {
             font-weight: bold;
             font-size: 12px;
-        }
-        
-        .filtro-grupo input,
-        .filtro-grupo select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .btn-filtrar {
-            padding: 8px 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .btn-filtrar:hover {
-            background: #2980b9;
         }
         
         .btn-pdf {
@@ -210,42 +159,15 @@ $promedio_tiempo = count($consumos) > 0 ? round($total_tiempo / count($consumos)
 
     <div class="container">
         <!-- Filtros -->
-        <div class="filtros">
-            <form method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                <div class="filtro-grupo">
-                    <label for="fecha_inicio">Fecha Inicio:</label>
-                    <input type="date" id="fecha_inicio" name="fecha_inicio" value="<?php echo $fecha_inicio; ?>">
-                </div>
-                
-                <div class="filtro-grupo">
-                    <label for="fecha_fin">Fecha Fin:</label>
-                    <input type="date" id="fecha_fin" name="fecha_fin" value="<?php echo $fecha_fin; ?>">
-                </div>
-                
-                <div class="filtro-grupo">
-                    <label for="dispositivo">Dispositivo:</label>
-                    <select id="dispositivo" name="dispositivo">
-                        <option value="0">Todos</option>
-                        <?php foreach ($dispositivos as $disp): ?>
-                            <option value="<?php echo $disp['id']; ?>" 
-                                    <?php echo ($dispositivo_id == $disp['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($disp['nombre_dispositivo']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <button type="submit" class="btn-filtrar">Filtrar</button>
-                
-                <?php
-                $pdf_url = 'generarReporte.php?fecha_inicio=' . urlencode($fecha_inicio) . 
-                           '&fecha_fin=' . urlencode($fecha_fin);
-                if ($dispositivo_id > 0) {
-                    $pdf_url .= '&dispositivo=' . $dispositivo_id;
-                }
-                ?>
-                <a href="<?php echo $pdf_url; ?>" class="btn-pdf">Descargar PDF</a>
-            </form>
+        <div class="filtros" style="align-items: center;">
+            <div class="filtro-grupo">
+                <label style="color: black;">Fecha: <?php echo date('d/m/Y'); ?></label>
+            </div>
+            <?php
+            $pdf_url = 'generarReporte.php?fecha_inicio=' . urlencode($fecha_inicio) . 
+                       '&fecha_fin=' . urlencode($fecha_fin);
+            ?>
+            <a href="<?php echo $pdf_url; ?>" class="btn-pdf">Descargar PDF</a>
         </div>
 
         <!-- Estadísticas -->
@@ -263,11 +185,6 @@ $promedio_tiempo = count($consumos) > 0 ? round($total_tiempo / count($consumos)
             <div class="tarjeta-stats" style="border-left-color: #f39c12;">
                 <h3>Tiempo Total</h3>
                 <div class="valor"><?php echo round($promedio_tiempo); ?> min</div>
-            </div>
-            
-            <div class="tarjeta-stats" style="border-left-color: #9b59b6;">
-                <h3>Total Ciclos</h3>
-                <div class="valor"><?php echo count($consumos); ?></div>
             </div>
         </div>
 
