@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: text/plain');
+header('Content-Type: application/json');
 include 'conexion.php';
 
 // Recibir datos de la ESP con validación
@@ -26,10 +26,19 @@ $stmt_estados = $conexion->prepare("SELECT id, estado_valvula FROM estado_sistem
 $stmt_estados->execute();
 $resultado = $stmt_estados->get_result();
 
-$ordenes = [];
-while ($fila = $resultado->fetch_assoc()) {
-    $ordenes[] = $fila['estado_valvula'];
-}
+$ordenes = [
+    "bomba1" => 0,
+    "v1" => 0,
+    "v2" => 0,
+];
 
-echo implode(",", $ordenes);
+while ($fila = $resultado->fetch_assoc()) {
+    if ($fila['id'] == 1) $ordenes["bomba"] = intval($fila['estado_valvula']);
+    if ($fila['id'] == 2) $ordenes["v1"]    = intval($fila['estado_valvula']);
+    if ($fila['id'] == 3) $ordenes["v2"]    = intval($fila['estado_valvula']);
+}
+ 
+
+
+echo json_encode($ordenes);
 ?>

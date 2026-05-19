@@ -6,16 +6,16 @@
 const int PIN_BOMBA    = 16;
 const int PIN_VALVULA1 = 4;
 const int PIN_VALVULA2 = 5;
-const int PIN_SENSOR1  = 6;
-const int PIN_SENSOR2  = 7;
+const int PIN_SENSOR1  = 12; 
+const int PIN_SENSOR2  = 13; 
 const int PIN_SENSOR3  = 15;
 const int TRIG_PIN     = 17;
 const int ECHO_PIN     = 18;
 
 //Configuración
-const char* SSID       = "INFINITUM88B3_plus";
-const char* PASSWORD   = "DDgAWZ2G9T";
-const char* SERVER_URL = "http://192.168.0.239/Valvulas/procesarEsp.php";
+const char* SSID       = "1DDD";
+const char* PASSWORD   = "12345678";
+const char* SERVER_URL = "http://192.168.164.45/Valvulas/procesarEsp.php";
 
 const float ALTURA_TANQUE_CM  = 19.0;
 const float FACTOR_CONVERSION = 7.5;
@@ -37,10 +37,10 @@ float leerFlujo(volatile int &contador) {
   int p = contador;
   contador = 0;
   portEXIT_CRITICAL(&mux);
-  return (p / FACTOR_CONVERSION) / (INTERVALO / 60000.0);
+  return (p / FACTOR_CONVERSION) / (INTERVALO / 1000.0);
 }
 
-//Nivel del tanque (HC-SR04)
+//Nivel del tanque
 float nivelTanque() {
   digitalWrite(TRIG_PIN, LOW);  delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
@@ -78,11 +78,19 @@ void enviarDatos(float f1, float f2, float f3, float nivel) {
   int code = http.POST(body);
 
   if (code == 200) {
-    JsonDocument doc(256);
-    if (!deserializeJson(doc, http.getString())) {
-      setRele(PIN_BOMBA,    doc["estado1"] | 0);
-      setRele(PIN_VALVULA1, doc["estado2"] | 0);
-      setRele(PIN_VALVULA2, doc["estado3"] | 0);
+    String response = http.getString();
+    Serial.println("Respuesta del servidor: " + response);
+
+    DynamicJsonDocument doc(256);
+    DeserializationError error = deserializeJson(doc, response);
+
+    if (error == DeserializationError::Ok) {
+      setRele(PIN_BOMBA,    doc["bomba"] | 0);
+      setRele(PIN_VALVULA1, doc["v1"] | 0);
+      setRele(PIN_VALVULA2, doc["v2"] | 0);
+    } else {
+      Serial.print("Error al leer JSON: ");
+      Serial.println(error.c_str());
     }
   } else {
     Serial.println("Error HTTP: " + String(code));

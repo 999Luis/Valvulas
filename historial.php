@@ -13,11 +13,15 @@
     <nav class="nav-links">
         <a href="index.php">Inicio</a>
         <a href="historial.php">Historial</a>
-        <a href="reportes.php">Reportes</a>
     </nav>
 </div>
 
 <body>
+    <div style="text-align: right; margin-bottom: 15px;">
+    <a href="generarReporte.php" target="_blank" style="background-color: #2980b9; color: white; padding: 10px 20px; margin-top: 10px; text-align: center; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: bold; border-radius: 5px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background 0.3s;">
+        Descargar Reporte
+    </a>
+</div>
     <div class="contenedores">
         <table>
             <thead>
